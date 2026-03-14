@@ -15,6 +15,9 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./project
 
     steps:
       - name: Checkout code
@@ -26,14 +29,13 @@ jobs:
           node-version: 20
       - name: Install dependencies
         run: npm install
-        working-directory: ./project
       - name: adding environment variables
         run: |
           echo "export const environment = {
             production: true,
             supabaseUrl: '${{ vars.VITE_SUPABASE_URL }}',
             supabaseAnonKey: '${{ vars.VITE_SUPABASE_ANON_KEY }}'
-          };" > project/src/environments/environment.prod.ts
+          };" > src/environment/environment.prod.ts
 
       # - name: Run lint
       #   run: npm run lint
@@ -56,7 +58,7 @@ jobs:
       - name: Create tag
         if: github.ref == 'refs/heads/main'
         run: |
-          git tag v$(date +'%Y%m%d%H%M%S')
+          git tag v$(date +'%Y%m%d%') # add %Y%m%d%H%M%S for unique tags
           git push origin --tags
   deploy:
     needs: build
